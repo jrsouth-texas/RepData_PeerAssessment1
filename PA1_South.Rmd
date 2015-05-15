@@ -1,0 +1,104 @@
+---
+title: "Reproducible Research: Peer Assessment 1"
+output: 
+  html_document:
+    keep_md: true
+---
+
+
+### Loading and preprocessing the data
+
+
+The assumption for this exercise is that the datafile is in the same directory as the R markdown file. We start by reading in the datafile and verifying that it has the full set of 17,568 observations.  
+
+```{r}
+# afile <- read.csv("activity.csv", as.is=TRUE)
+afile <- read.csv("activity.csv")
+nrow(afile)
+
+str(afile)
+
+head(afile)
+tail(afile)
+
+print("The number of steps NA's: "); sum(is.na(afile$steps))
+print("The number of date NA's: "); sum(is.na(afile$date))
+print("The number of interval NA's: "); sum(is.na(afile$interval))
+```
+
+The variables in the dataset are:
+
+  - steps - the number of steps taken in 5-minute intervals (missing values are coded as NA)
+  
+  - date  - the date the measurements were taken in YYYY-MM-DD format
+  
+  - interval - Identifier for the 5-minute interval in wqhich the measurement was taken
+  
+The data are formatted numeric (steps, interval) and factors (date) after being read into a dataframe.  We also notice from the head() and tail() functions that there are some NA's in the steps variable.  
+
+
+
+### What is mean total number of steps taken per day?
+
+For this part, we want to answer several question of the data. We will ignore the missing values in the dataset.
+
+
+1. Calculate the total number of steps taken per day
+2. Make a histogram of the total number of steps taken each day.
+3. Calculate and report the mean and median of the total number of steps taken per day.
+
+To calculate the total numebr of step, we'l use aggregate(), passing it the sum function.  We'll store the results in a table, totalSteps  with to variables, tDate and tSteps.
+
+```{r, echo=FALSE}
+options(warn=-1)
+library(plyr)
+```
+
+```{r}
+totalDays <- aggregate(afile$steps, by = list(afile$date), FUN = sum, na.rm=TRUE)
+colnames(totalDays) <- c("tDate", "tSteps")
+```
+
+We can now plot this a histogram against the frequency of the numebr of steps taken on any given day.  
+
+```{r}
+hist(totalDays$tSteps,
+     breaks=25,
+     main = "Histogram of Total Steps per day",
+     xlim=range(0,25000),
+     col = "lightblue")
+```
+
+Finally, we want the the mean and median of otal number of steps taken per day.  
+
+```{r}
+meanSteps <- round(mean(totalDays$tSteps), digits=2)
+print(paste(c("The mean of the total steps taken per day is: "), meanSteps))
+medianSteps <- round(median(totalDays$tSteps), digits=2)
+print(paste(c("The median of the total steps taken per day is: "), medianSteps))
+
+```
+
+### What is the average daily activity pattern?
+
+1. Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
+
+We set up a table that computes the average number of steps per 5-minute interval. 
+
+```{r}
+intervalTable <- aggregate(afile$steps ~ afile$interval, FUN=mean)
+colnames(intervalTable) <- c("interval", "steps")
+head(intervalTable)
+```
+
+
+
+2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
+
+
+
+## Imputing missing values
+
+
+
+## Are there differences in activity patterns between weekdays and weekends?
