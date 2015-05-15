@@ -9,7 +9,9 @@ output:
 ### Loading and preprocessing the data
 
 
-The assumption for this exercise is that the datafile is in the same directory as the R markdown file. We start by reading in the datafile and verifying that it has the full set of 17,568 observations.  
+**The assumption for this exercise is that the datafile is in the same directory as the R markdown file.** 
+
+We start by reading in the datafile and verifying that it has the full set of 17,568 observations.  
 
 ```{r}
 # afile <- read.csv("activity.csv", as.is=TRUE)
@@ -20,10 +22,6 @@ str(afile)
 
 head(afile)
 tail(afile)
-
-print("The number of steps NA's: "); sum(is.na(afile$steps))
-print("The number of date NA's: "); sum(is.na(afile$date))
-print("The number of interval NA's: "); sum(is.na(afile$interval))
 ```
 
 The variables in the dataset are:
@@ -83,19 +81,27 @@ print(paste(c("The median of the total steps taken per day is: "), medianSteps))
 
 1. Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 
-We set up a table that computes the average number of steps per 5-minute interval. 
+We set up a table that computes the average number of steps per 5-minute interval. Then, we produce a time-series plot of of the average number of steps per interval. 
 
 ```{r}
 intervalTable <- aggregate(afile$steps ~ afile$interval, FUN=mean)
 colnames(intervalTable) <- c("interval", "steps")
-head(intervalTable)
+plot(intervalTable$interval, intervalTable$steps, type="l",
+     main="Time Series Plot of Average Number of Steps per 5-minute Interval",
+     xlab="Interval", ylab="Steps")
 ```
 
 
 
 2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
-
+```{r}
+mInterval <- subset(intervalTable, steps == max(steps), select=interval )
+maxInterval <- mInterval$interval[1]
+```
+```{r echo=FALSE}
+print(paste(c("The interval with the most avarage number of steps per day is interval:"), maxInterval))
+```
 
 ## Imputing missing values
 

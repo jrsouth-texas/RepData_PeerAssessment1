@@ -4,7 +4,9 @@
 ### Loading and preprocessing the data
 
 
-The assumption for this exercise is that the datafile is in the same directory as the R markdown file. We start by reading in the datafile and verifying that it has the full set of 17,568 observations.  
+**The assumption for this exercise is that the datafile is in the same directory as the R markdown file.** 
+
+We start by reading in the datafile and verifying that it has the full set of 17,568 observations.  
 
 
 ```r
@@ -54,42 +56,6 @@ tail(afile)
 ## 17566    NA 2012-11-30     2345
 ## 17567    NA 2012-11-30     2350
 ## 17568    NA 2012-11-30     2355
-```
-
-```r
-print("The number of steps NA's: "); sum(is.na(afile$steps))
-```
-
-```
-## [1] "The number of steps NA's: "
-```
-
-```
-## [1] 2304
-```
-
-```r
-print("The number of date NA's: "); sum(is.na(afile$date))
-```
-
-```
-## [1] "The number of date NA's: "
-```
-
-```
-## [1] 0
-```
-
-```r
-print("The number of interval NA's: "); sum(is.na(afile$interval))
-```
-
-```
-## [1] "The number of interval NA's: "
-```
-
-```
-## [1] 0
 ```
 
 The variables in the dataset are:
@@ -161,30 +127,32 @@ print(paste(c("The median of the total steps taken per day is: "), medianSteps))
 
 1. Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 
-We set up a table that computes the average number of steps per 5-minute interval. 
+We set up a table that computes the average number of steps per 5-minute interval. Then, we produce a time-series plot of of the average number of steps per interval. 
 
 
 ```r
 intervalTable <- aggregate(afile$steps ~ afile$interval, FUN=mean)
 colnames(intervalTable) <- c("interval", "steps")
-head(intervalTable)
+plot(intervalTable$interval, intervalTable$steps, type="l",
+     main="Time Series Plot of Average Number of Steps per 5-minute Interval",
+     xlab="Interval", ylab="Steps")
 ```
 
-```
-##   interval     steps
-## 1        0 1.7169811
-## 2        5 0.3396226
-## 3       10 0.1320755
-## 4       15 0.1509434
-## 5       20 0.0754717
-## 6       25 2.0943396
-```
+![](PA1_South_files/figure-html/unnamed-chunk-6-1.png) 
 
 
 
 2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
 
+```r
+mInterval <- subset(intervalTable, steps == max(steps), select=interval )
+maxInterval <- mInterval$interval[1]
+```
+
+```
+## [1] "The interval with the most avarage number of steps per day is interval: 835"
+```
 
 ## Imputing missing values
 
