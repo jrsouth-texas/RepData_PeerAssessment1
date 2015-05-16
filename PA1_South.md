@@ -10,7 +10,6 @@ We start by reading in the datafile and verifying that it has the full set of 17
 
 
 ```r
-# afile <- read.csv("activity.csv", as.is=TRUE)
 afile <- read.csv("activity.csv")
 nrow(afile)
 ```
@@ -154,8 +153,73 @@ maxInterval <- mInterval$interval[1]
 ## [1] "The interval with the most avarage number of steps per day is interval: 835"
 ```
 
-## Imputing missing values
+### Imputing missing values
 
+As noted in the first section of this exercise, there are number of days with intervals where there were no step data available.  Though we could assign a value of 0 for those intervals, a more legitimate strategy would be to take the average step values that we computed per interval per day and apply those to the corresponding intervas that have missing values. 
+
+
+```r
+print(paste("The number of NA data points in our activity file is:", sum(is.na(afile$steps))))
+```
+
+```
+## [1] "The number of NA data points in our activity file is: 2304"
+```
+
+In order to not change the original data, we'll copy the original acitivity file to a new file, bfile, and then impute the new values for the data points that presently have NA values.  Then we'll use the table of averages as a look-up table where we can use the interval number from the impacted data point to look into our table of means and then replace the NA steps with a rounded number of steps from the value of the mean of all steps in that interval.  
+
+
+```r
+bfile <- afile
+for (i in 1:nrow(bfile)){
+   if(is.na(bfile$steps[i])) {}
+       bfile$steps[i] <- round(intervalTable[which(bfile$interval[i] == intervalTable$interval),]$steps)
+}
+```
+
+if we test again to see how many NA data points we have, we should see 0 NA values at this point. 
+
+
+```
+## [1] "The number of NA data points in our activity file is: 0"
+```
+
+
+
+```r
+##totalDays <- aggregate(afile$steps ~ afile$date, FUN = sum)
+##colnames(totalDays) <- c("tDate", "tSteps")
+##head(totalDays)
+
+##sapply(afile, ifelse(is.na(afile$steps), afile$steps = intervalTable$steps,) )
+##totalDays <- aggregate(afile$steps, by = list(afile$date), FUN = sum)
+##colnames(totalDays) <- c("tDate", "tSteps")
+##head(totalDays)
+```
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+
+# Transform the date attribute to an actual date format
+##activity_raw$date <- as.POSIXct(activity_raw$date, format="%Y-%m-%d")
+
+# Compute the weekdays from the date attribute
+##activity_raw <- data.frame(date=activity_raw$date, 
+##                           weekday=tolower(weekdays(activity_raw$date)), 
+##                           steps=activity_raw$steps, 
+##                           interval=activity_raw$interval)
+
+# Compute the day type (weekend or weekday)
+##activity_raw <- cbind(activity_raw, 
+##                      daytype=ifelse(activity_raw$weekday == "saturday" | 
+##                                     activity_raw$weekday == "sunday", "weekend", 
+##                                     "weekday"))
+
+# Create the final data.frame
+##activity <- data.frame(date=activity_raw$date, 
+##                       weekday=activity_raw$weekday, 
+##                       daytype=activity_raw$daytype, 
+##                       interval=activity_raw$interval,
+##                       steps=activity_raw$steps)
+

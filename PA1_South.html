@@ -68,8 +68,7 @@ img {
 <h3>Loading and preprocessing the data</h3>
 <p><strong>The assumption for this exercise is that the datafile is in the same directory as the R markdown file.</strong></p>
 <p>We start by reading in the datafile and verifying that it has the full set of 17,568 observations.</p>
-<pre class="r"><code># afile &lt;- read.csv(&quot;activity.csv&quot;, as.is=TRUE)
-afile &lt;- read.csv(&quot;activity.csv&quot;)
+<pre class="r"><code>afile &lt;- read.csv(&quot;activity.csv&quot;)
 nrow(afile)</code></pre>
 <pre><code>## [1] 17568</code></pre>
 <pre class="r"><code>str(afile)</code></pre>
@@ -146,11 +145,69 @@ plot(intervalTable$interval, intervalTable$steps, type=&quot;l&quot;,
 maxInterval &lt;- mInterval$interval[1]</code></pre>
 <pre><code>## [1] &quot;The interval with the most avarage number of steps per day is interval: 835&quot;</code></pre>
 </div>
-<div id="imputing-missing-values" class="section level2">
-<h2>Imputing missing values</h2>
+<div id="imputing-missing-values" class="section level3">
+<h3>Imputing missing values</h3>
+<p>As noted in the first section of this exercise, there are number of days with intervals where there were no step data available. Though we could assign a value of 0 for those intervals, a more legitimate strategy would be to take the average step values that we computed per interval per day and apply those to the corresponding intervas that have missing values.</p>
+<pre class="r"><code>print(paste(&quot;The number of NA data points in our activity file is:&quot;, sum(is.na(afile$steps))))</code></pre>
+<pre><code>## [1] &quot;The number of NA data points in our activity file is: 2304&quot;</code></pre>
+<p>In order to not change the original data, we’ll copy the original acitivity file to a new file, bfile, and then impute the new values for the data points that presently have NA values. Then we’ll use the table of averages as a look-up table where we can use the interval number from the impacted data point to look into our table of means and then replace the NA steps with a rounded number of steps from the value of the mean of all steps in that interval.</p>
+<pre class="r"><code>bfile &lt;- afile
+for (i in 1:nrow(bfile)){
+   if(is.na(bfile$steps[i])) {}
+       bfile$steps[i] &lt;- round(intervalTable[which(bfile$interval[i] == intervalTable$interval),]$steps)
+}</code></pre>
+<p>if we test again to see how many NA data points we have, we should see 0 NA values at this point.</p>
+<pre><code>## [1] &quot;The number of NA data points in our activity file is: 0&quot;</code></pre>
+<pre class="r"><code>##totalDays &lt;- aggregate(afile$steps ~ afile$date, FUN = sum)
+##colnames(totalDays) &lt;- c(&quot;tDate&quot;, &quot;tSteps&quot;)
+##head(totalDays)
+
+##sapply(afile, ifelse(is.na(afile$steps), afile$steps = intervalTable$steps,) )
+##totalDays &lt;- aggregate(afile$steps, by = list(afile$date), FUN = sum)
+##colnames(totalDays) &lt;- c(&quot;tDate&quot;, &quot;tSteps&quot;)
+##head(totalDays)</code></pre>
 </div>
 <div id="are-there-differences-in-activity-patterns-between-weekdays-and-weekends" class="section level2">
 <h2>Are there differences in activity patterns between weekdays and weekends?</h2>
+</div>
+<div id="transform-the-date-attribute-to-an-actual-date-format" class="section level1">
+<h1>Transform the date attribute to an actual date format</h1>
+<div id="activity_rawdate---as.posixctactivity_rawdate-formaty-m-d" class="section level2">
+<h2>activity_raw<span class="math">\(date &lt;- as.POSIXct(activity_raw\)</span>date, format=“%Y-%m-%d”)</h2>
+</div>
+</div>
+<div id="compute-the-weekdays-from-the-date-attribute" class="section level1">
+<h1>Compute the weekdays from the date attribute</h1>
+<div id="activity_raw---data.framedateactivity_rawdate-weekdaytolowerweekdaysactivity_rawdate" class="section level2">
+<h2>activity_raw &lt;- data.frame(date=activity_raw<span class="math">\(date, ## weekday=tolower(weekdays(activity_raw\)</span>date)),</h2>
+</div>
+<div id="stepsactivity_rawsteps-intervalactivity_rawinterval" class="section level2">
+<h2>steps=activity_raw<span class="math">\(steps, ## interval=activity_raw\)</span>interval)</h2>
+</div>
+</div>
+<div id="compute-the-day-type-weekend-or-weekday" class="section level1">
+<h1>Compute the day type (weekend or weekday)</h1>
+<div id="activity_raw---cbindactivity_raw" class="section level2">
+<h2>activity_raw &lt;- cbind(activity_raw,</h2>
+</div>
+<div id="daytypeifelseactivity_rawweekday-saturday-activity_rawweekday-sunday-weekend" class="section level2">
+<h2>daytype=ifelse(activity_raw<span class="math">\(weekday == &quot;saturday&quot; | ## activity_raw\)</span>weekday == “sunday”, “weekend”,</h2>
+</div>
+<div id="weekday" class="section level2">
+<h2>“weekday”))</h2>
+</div>
+</div>
+<div id="create-the-final-data.frame" class="section level1">
+<h1>Create the final data.frame</h1>
+<div id="activity---data.framedateactivity_rawdate-weekdayactivity_rawweekday" class="section level2">
+<h2>activity &lt;- data.frame(date=activity_raw<span class="math">\(date, ## weekday=activity_raw\)</span>weekday,</h2>
+</div>
+<div id="daytypeactivity_rawdaytype-intervalactivity_rawinterval" class="section level2">
+<h2>daytype=activity_raw<span class="math">\(daytype, ## interval=activity_raw\)</span>interval,</h2>
+</div>
+<div id="stepsactivity_rawsteps" class="section level2">
+<h2>steps=activity_raw$steps)</h2>
+</div>
 </div>
 
 
