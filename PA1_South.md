@@ -88,7 +88,7 @@ totalDays <- aggregate(afile$steps, by = list(afile$date), FUN = sum, na.rm=TRUE
 colnames(totalDays) <- c("tDate", "tSteps")
 ```
 
-We can now plot this a histogram against the frequency of the numebr of steps taken on any given day.  
+We can now plot this a histogram against the frequency of the number of steps taken on any given day.  
 
 
 ```r
@@ -158,10 +158,6 @@ maxInterval <- mInterval$interval[1]
 As noted in the first section of this exercise, there are number of days with intervals where there were no step data available.  Though we could assign a value of 0 for those intervals, a more legitimate strategy would be to take the average step values that we computed per interval per day and apply those to the corresponding intervas that have missing values. 
 
 
-```r
-print(paste("The number of NA data points in our activity file is:", sum(is.na(afile$steps))))
-```
-
 ```
 ## [1] "The number of NA data points in our activity file is: 2304"
 ```
@@ -172,8 +168,9 @@ In order to not change the original data, we'll copy the original acitivity file
 ```r
 bfile <- afile
 for (i in 1:nrow(bfile)){
-   if(is.na(bfile$steps[i])) {}
+   if(is.na(bfile$steps[i])) {
        bfile$steps[i] <- round(intervalTable[which(bfile$interval[i] == intervalTable$interval),]$steps)
+       }
 }
 ```
 
@@ -184,42 +181,77 @@ if we test again to see how many NA data points we have, we should see 0 NA valu
 ## [1] "The number of NA data points in our activity file is: 0"
 ```
 
+WE wantg to make a histogram of the total number of steps taken each day and calculate and report the mean and median total number of steps taken per day. We can then determine if these values differ from the estimates from the first part of this exercise.   What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
 
 ```r
-##totalDays <- aggregate(afile$steps ~ afile$date, FUN = sum)
-##colnames(totalDays) <- c("tDate", "tSteps")
-##head(totalDays)
-
-##sapply(afile, ifelse(is.na(afile$steps), afile$steps = intervalTable$steps,) )
-##totalDays <- aggregate(afile$steps, by = list(afile$date), FUN = sum)
-##colnames(totalDays) <- c("tDate", "tSteps")
-##head(totalDays)
+newTotalDays <- aggregate(bfile$steps ~ bfile$date, FUN = sum, na.rm=TRUE)
+colnames(newTotalDays) <- c("tDate", "tSteps")
+str(newTotalDays)
 ```
 
+```
+## 'data.frame':	61 obs. of  2 variables:
+##  $ tDate : Factor w/ 61 levels "2012-10-01","2012-10-02",..: 1 2 3 4 5 6 7 8 9 10 ...
+##  $ tSteps: num  10762 126 11352 12116 13294 ...
+```
+
+```r
+nrow(newTotalDays)
+```
+
+```
+## [1] 61
+```
+
+```r
+head(newTotalDays)
+```
+
+```
+##        tDate tSteps
+## 1 2012-10-01  10762
+## 2 2012-10-02    126
+## 3 2012-10-03  11352
+## 4 2012-10-04  12116
+## 5 2012-10-05  13294
+## 6 2012-10-06  15420
+```
+
+We can now plot this a histogram against the frequency of the number of steps taken on any given day.  
+
+
+```r
+hist(newTotalDays$tSteps,
+     breaks=25,
+     main = "Histogram of Total Steps per day",
+     xlim=range(0,25000),
+     col = "lightblue")
+```
+
+![](PA1_South_files/figure-html/unnamed-chunk-13-1.png) 
+
+Finally, we want the the mean and median of otal number of steps taken per day.  
+
+
+```r
+newMeanSteps <- round(mean(newTotalDays$tSteps), digits=2)
+print(paste("The previous mean of the total steps taken per day was", meanSteps, "whereas the mean of with the imputed data is: ", newMeanSteps))
+```
+
+```
+## [1] "The previous mean of the total steps taken per day was 9354.23 whereas the mean of with the imputed data is:  10765.64"
+```
+
+```r
+newMedianSteps <- round(median(newTotalDays$tSteps), digits=2)
+print(paste("The previous median of the total steps taken per day was: ", medianSteps, "whereas the median with the imputed date is:", newMedianSteps))
+```
+
+```
+## [1] "The previous median of the total steps taken per day was:  10395 whereas the median with the imputed date is: 10762"
+```
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-
-# Transform the date attribute to an actual date format
-##activity_raw$date <- as.POSIXct(activity_raw$date, format="%Y-%m-%d")
-
-# Compute the weekdays from the date attribute
-##activity_raw <- data.frame(date=activity_raw$date, 
-##                           weekday=tolower(weekdays(activity_raw$date)), 
-##                           steps=activity_raw$steps, 
-##                           interval=activity_raw$interval)
-
-# Compute the day type (weekend or weekday)
-##activity_raw <- cbind(activity_raw, 
-##                      daytype=ifelse(activity_raw$weekday == "saturday" | 
-##                                     activity_raw$weekday == "sunday", "weekend", 
-##                                     "weekday"))
-
-# Create the final data.frame
-##activity <- data.frame(date=activity_raw$date, 
-##                       weekday=activity_raw$weekday, 
-##                       daytype=activity_raw$daytype, 
-##                       interval=activity_raw$interval,
-##                       steps=activity_raw$steps)
 

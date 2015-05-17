@@ -111,7 +111,7 @@ nrow(afile)</code></pre>
 <p>To calculate the total numebr of step, we’l use aggregate(), passing it the sum function. We’ll store the results in a table, totalSteps with to variables, tDate and tSteps.</p>
 <pre class="r"><code>totalDays &lt;- aggregate(afile$steps, by = list(afile$date), FUN = sum, na.rm=TRUE)
 colnames(totalDays) &lt;- c(&quot;tDate&quot;, &quot;tSteps&quot;)</code></pre>
-<p>We can now plot this a histogram against the frequency of the numebr of steps taken on any given day.</p>
+<p>We can now plot this a histogram against the frequency of the number of steps taken on any given day.</p>
 <pre class="r"><code>hist(totalDays$tSteps,
      breaks=25,
      main = &quot;Histogram of Total Steps per day&quot;,
@@ -148,66 +148,50 @@ maxInterval &lt;- mInterval$interval[1]</code></pre>
 <div id="imputing-missing-values" class="section level3">
 <h3>Imputing missing values</h3>
 <p>As noted in the first section of this exercise, there are number of days with intervals where there were no step data available. Though we could assign a value of 0 for those intervals, a more legitimate strategy would be to take the average step values that we computed per interval per day and apply those to the corresponding intervas that have missing values.</p>
-<pre class="r"><code>print(paste(&quot;The number of NA data points in our activity file is:&quot;, sum(is.na(afile$steps))))</code></pre>
 <pre><code>## [1] &quot;The number of NA data points in our activity file is: 2304&quot;</code></pre>
 <p>In order to not change the original data, we’ll copy the original acitivity file to a new file, bfile, and then impute the new values for the data points that presently have NA values. Then we’ll use the table of averages as a look-up table where we can use the interval number from the impacted data point to look into our table of means and then replace the NA steps with a rounded number of steps from the value of the mean of all steps in that interval.</p>
 <pre class="r"><code>bfile &lt;- afile
 for (i in 1:nrow(bfile)){
-   if(is.na(bfile$steps[i])) {}
+   if(is.na(bfile$steps[i])) {
        bfile$steps[i] &lt;- round(intervalTable[which(bfile$interval[i] == intervalTable$interval),]$steps)
+       }
 }</code></pre>
 <p>if we test again to see how many NA data points we have, we should see 0 NA values at this point.</p>
 <pre><code>## [1] &quot;The number of NA data points in our activity file is: 0&quot;</code></pre>
-<pre class="r"><code>##totalDays &lt;- aggregate(afile$steps ~ afile$date, FUN = sum)
-##colnames(totalDays) &lt;- c(&quot;tDate&quot;, &quot;tSteps&quot;)
-##head(totalDays)
-
-##sapply(afile, ifelse(is.na(afile$steps), afile$steps = intervalTable$steps,) )
-##totalDays &lt;- aggregate(afile$steps, by = list(afile$date), FUN = sum)
-##colnames(totalDays) &lt;- c(&quot;tDate&quot;, &quot;tSteps&quot;)
-##head(totalDays)</code></pre>
+<p>WE wantg to make a histogram of the total number of steps taken each day and calculate and report the mean and median total number of steps taken per day. We can then determine if these values differ from the estimates from the first part of this exercise. What is the impact of imputing missing data on the estimates of the total daily number of steps?</p>
+<pre class="r"><code>newTotalDays &lt;- aggregate(bfile$steps ~ bfile$date, FUN = sum, na.rm=TRUE)
+colnames(newTotalDays) &lt;- c(&quot;tDate&quot;, &quot;tSteps&quot;)
+str(newTotalDays)</code></pre>
+<pre><code>## 'data.frame':    61 obs. of  2 variables:
+##  $ tDate : Factor w/ 61 levels &quot;2012-10-01&quot;,&quot;2012-10-02&quot;,..: 1 2 3 4 5 6 7 8 9 10 ...
+##  $ tSteps: num  10762 126 11352 12116 13294 ...</code></pre>
+<pre class="r"><code>nrow(newTotalDays)</code></pre>
+<pre><code>## [1] 61</code></pre>
+<pre class="r"><code>head(newTotalDays)</code></pre>
+<pre><code>##        tDate tSteps
+## 1 2012-10-01  10762
+## 2 2012-10-02    126
+## 3 2012-10-03  11352
+## 4 2012-10-04  12116
+## 5 2012-10-05  13294
+## 6 2012-10-06  15420</code></pre>
+<p>We can now plot this a histogram against the frequency of the number of steps taken on any given day.</p>
+<pre class="r"><code>hist(newTotalDays$tSteps,
+     breaks=25,
+     main = &quot;Histogram of Total Steps per day&quot;,
+     xlim=range(0,25000),
+     col = &quot;lightblue&quot;)</code></pre>
+<p><img src="data:image/png;base64,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" /></p>
+<p>Finally, we want the the mean and median of otal number of steps taken per day.</p>
+<pre class="r"><code>newMeanSteps &lt;- round(mean(newTotalDays$tSteps), digits=2)
+print(paste(&quot;The previous mean of the total steps taken per day was&quot;, meanSteps, &quot;whereas the mean of with the imputed data is: &quot;, newMeanSteps))</code></pre>
+<pre><code>## [1] &quot;The previous mean of the total steps taken per day was 9354.23 whereas the mean of with the imputed data is:  10765.64&quot;</code></pre>
+<pre class="r"><code>newMedianSteps &lt;- round(median(newTotalDays$tSteps), digits=2)
+print(paste(&quot;The previous median of the total steps taken per day was: &quot;, medianSteps, &quot;whereas the median with the imputed date is:&quot;, newMedianSteps))</code></pre>
+<pre><code>## [1] &quot;The previous median of the total steps taken per day was:  10395 whereas the median with the imputed date is: 10762&quot;</code></pre>
 </div>
 <div id="are-there-differences-in-activity-patterns-between-weekdays-and-weekends" class="section level2">
 <h2>Are there differences in activity patterns between weekdays and weekends?</h2>
-</div>
-<div id="transform-the-date-attribute-to-an-actual-date-format" class="section level1">
-<h1>Transform the date attribute to an actual date format</h1>
-<div id="activity_rawdate---as.posixctactivity_rawdate-formaty-m-d" class="section level2">
-<h2>activity_raw<span class="math">\(date &lt;- as.POSIXct(activity_raw\)</span>date, format=“%Y-%m-%d”)</h2>
-</div>
-</div>
-<div id="compute-the-weekdays-from-the-date-attribute" class="section level1">
-<h1>Compute the weekdays from the date attribute</h1>
-<div id="activity_raw---data.framedateactivity_rawdate-weekdaytolowerweekdaysactivity_rawdate" class="section level2">
-<h2>activity_raw &lt;- data.frame(date=activity_raw<span class="math">\(date, ## weekday=tolower(weekdays(activity_raw\)</span>date)),</h2>
-</div>
-<div id="stepsactivity_rawsteps-intervalactivity_rawinterval" class="section level2">
-<h2>steps=activity_raw<span class="math">\(steps, ## interval=activity_raw\)</span>interval)</h2>
-</div>
-</div>
-<div id="compute-the-day-type-weekend-or-weekday" class="section level1">
-<h1>Compute the day type (weekend or weekday)</h1>
-<div id="activity_raw---cbindactivity_raw" class="section level2">
-<h2>activity_raw &lt;- cbind(activity_raw,</h2>
-</div>
-<div id="daytypeifelseactivity_rawweekday-saturday-activity_rawweekday-sunday-weekend" class="section level2">
-<h2>daytype=ifelse(activity_raw<span class="math">\(weekday == &quot;saturday&quot; | ## activity_raw\)</span>weekday == “sunday”, “weekend”,</h2>
-</div>
-<div id="weekday" class="section level2">
-<h2>“weekday”))</h2>
-</div>
-</div>
-<div id="create-the-final-data.frame" class="section level1">
-<h1>Create the final data.frame</h1>
-<div id="activity---data.framedateactivity_rawdate-weekdayactivity_rawweekday" class="section level2">
-<h2>activity &lt;- data.frame(date=activity_raw<span class="math">\(date, ## weekday=activity_raw\)</span>weekday,</h2>
-</div>
-<div id="daytypeactivity_rawdaytype-intervalactivity_rawinterval" class="section level2">
-<h2>daytype=activity_raw<span class="math">\(daytype, ## interval=activity_raw\)</span>interval,</h2>
-</div>
-<div id="stepsactivity_rawsteps" class="section level2">
-<h2>steps=activity_raw$steps)</h2>
-</div>
 </div>
 
 
