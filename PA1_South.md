@@ -261,3 +261,58 @@ For the fourth, and final objective, we will be determining if there is any diff
 1. Create a new factor variable in the dataset with two levels - "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
 
 2. Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). See the README file in the GitHub repository to see an example of what this plot should look like using simulated data.
+
+To determine if the day of the week is a weekday or a weekend day, we'll apply the weekdays() function against a new dataframe that uses the aggregate() to calculate a mean of all of the days.  We'll build a new vector called, "dayType" which we will then append to the end of our newActivtyDays dataframe.  
+
+
+```r
+dayVector <-NULL
+
+for (i in 1:nrow(bfile)) {
+    dayVector[i] <- ifelse(weekdays(as.Date(bfile$date[i])) == "Saturday" |
+                        weekdays(as.Date(bfile$date[i])) == "Sunday", "weekend", "weekday")
+    }
+activityDays <- cbind(bfile, as.factor(dayVector))
+colnames(activityDays) <- c("steps", "date", "interval", "dayType")
+str(activityDays)
+```
+
+```
+## 'data.frame':	17568 obs. of  4 variables:
+##  $ steps   : num  2 0 0 0 0 2 1 1 0 1 ...
+##  $ date    : Factor w/ 61 levels "2012-10-01","2012-10-02",..: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
+##  $ dayType : Factor w/ 2 levels "weekday","weekend": 1 1 1 1 1 1 1 1 1 1 ...
+```
+
+```r
+table(activityDays$dayType)
+```
+
+```
+## 
+## weekday weekend 
+##   12960    4608
+```
+
+We can move into the final objective which is creating a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). 
+
+
+```r
+newMeansTable <- aggregate(activityDays$steps, 
+                      list(interval = activityDays$interval, 
+                           weekdays = activityDays$dayType),
+                      FUN = mean)
+names(newMeansTable)[3] <- "stepMeanss"
+library(lattice)
+myPlot <- xyplot(newMeansTable$stepMeans ~ newMeansTable$interval | newMeansTable$weekdays, 
+       layout = c(1, 2), type = "l", 
+       xlab = "Interval", ylab = "Number of steps")
+print(myPlot)
+```
+
+![](PA1_South_files/figure-html/unnamed-chunk-16-1.png) 
+
+### Summary
+
+We can see from the plot that the activity file indicates signifcantly more activity during weekends.  The plots show many more peaksabove 100 steps per interval during the weekwends.  
