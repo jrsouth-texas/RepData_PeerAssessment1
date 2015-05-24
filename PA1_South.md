@@ -303,7 +303,7 @@ newMeansTable <- aggregate(activityDays$steps,
                       list(interval = activityDays$interval, 
                            weekdays = activityDays$dayType),
                       FUN = mean)
-names(newMeansTable)[3] <- "stepMeanss"
+names(newMeansTable)[3] <- "stepMeans"
 library(lattice)
 myPlot <- xyplot(newMeansTable$stepMeans ~ newMeansTable$interval | newMeansTable$weekdays, 
        layout = c(1, 2), type = "l", 

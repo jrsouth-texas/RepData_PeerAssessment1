@@ -222,7 +222,7 @@ str(activityDays)</code></pre>
                       list(interval = activityDays$interval, 
                            weekdays = activityDays$dayType),
                       FUN = mean)
-names(newMeansTable)[3] &lt;- &quot;stepMeanss&quot;
+names(newMeansTable)[3] &lt;- &quot;stepMeans&quot;
 library(lattice)
 myPlot &lt;- xyplot(newMeansTable$stepMeans ~ newMeansTable$interval | newMeansTable$weekdays, 
        layout = c(1, 2), type = &quot;l&quot;, 
